@@ -1,0 +1,8 @@
+//
+// Created by STELLA on 26/04/2021.
+//
+
+#ifndef ASSIGNMENT_2_LIBRARY_H
+#define ASSIGNMENT_2_LIBRARY_H
+
+#endif //ASSIGNMENT_2_LIBRARY_H

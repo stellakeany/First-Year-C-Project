@@ -10,6 +10,11 @@ struct othelloPlayer{
     int score;
 };
 
+struct othelloBoard{
+    char board[8][8];
+    enum othelloColour turn;
+};
+
 int main() {
 
     char ans='a';
@@ -48,21 +53,46 @@ int main() {
     printf("%s is playing as %c\n", player1.name, player1.colour);
     printf("%s is playing as %c\n", player2.name, player2.colour);
 
+
     /*Initialising the board*/
-    char board[8][8]={EMPTY};
-    player1.score = 2;
-    player2.score = 2;
+    struct othelloBoard current;
 
-    board[3][3]=WHITE;
-    board[4][3]=BLACK;
-    board[3][4]=BLACK;
-    board[4][4]=WHITE;
+    for (size_t i = 0; i < 8; ++i) {
+        for (int j = 0; j < 8; ++j){
+            current.board[i][j]=EMPTY;
+        }
+    }
+    current.board[3][3]=WHITE;
+    current.board[4][3]=BLACK;
+    current.board[3][4]=BLACK;
+    current.board[4][4]=WHITE;
 
-    while (player1.score+player2.score!=64){
+    current.turn=BLACK;
 
-        printBoard(board, player1.name, player2.name, player1.score, player2.score, player1.colour);
+    player1.score=2;
+    player2.score=2;
 
+    int inputRow;
+    char inputCol;
+    int  *inputRowPtr;
+    char  *inputColPtr;
 
+    inputRowPtr=&inputRow;
+    inputColPtr=&inputCol;
+
+    int test=0;
+
+    while (player1.score+player2.score!=64 && test == 0){
+
+        printBoard(current.board, player1.name, player2.name, player1.score, player2.score, player1.colour);
+
+        userInput(current.turn, current.board, inputRowPtr, inputColPtr);
+
+        if (current.turn==BLACK){
+            current.turn=WHITE;
+        } else current.turn=BLACK;
+
+        test++;
     }
 
     return 0;

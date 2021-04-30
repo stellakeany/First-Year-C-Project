@@ -30,3 +30,43 @@ void printBoard(char board[][8], char p1name[50], char p2name[50], int p1score, 
     printf("      a   b   c   d   e   f   g   h \n");
 
 }
+
+void userInput(char turn, char board[8][8], int *row, char *column){
+
+    int row_tmp=0;
+    char col_tmp='0';
+    int valid=0;
+
+    printf("It is currently %c's turn\n", turn);
+
+    while (valid==0){
+
+        printf("%s", "Please enter the row number of the disc you want to place.");
+        while(!(row_tmp >= 1 && row_tmp<= 8)){
+            printf("%s", "\nThe row numbers are 1, 2, 3, 4, 5, 6, 7 and 8:");
+            scanf("%d", &row_tmp);
+        }
+
+        printf("%s", "Please enter the column letter of the disc you want to place.");
+        while(!(col_tmp >= 'a' && col_tmp<= 'h') && !(col_tmp >= 'A' && col_tmp <= 'H')){
+            printf("%s", "\nThe column letters are a, b, c, d, e, f, g and h:");
+            scanf("%c", &col_tmp);
+            int tmp;
+            while ((tmp = getchar()) != '\n' && tmp != EOF){}
+        }
+
+        if (board[row_tmp][col_tmp] != ' '){
+            printf("Not a valid move! %d%c is already occupied\n", row_tmp, col_tmp);
+        }
+        else if (validMove(turn, board, row_tmp, col_tmp) == 1 ){
+            valid=1;
+            *row=row_tmp;
+            *column=col_tmp;
+        }
+        else (printf("Not a valid move!\n"));
+    }
+}
+
+int validMove(char turn, char board[8][8], int row, char column){
+    
+}

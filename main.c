@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 
+
+
 enum othelloColour {BLACK = 'B', WHITE = 'W', EMPTY = ' '};
 
 struct othelloPlayer{
@@ -14,6 +16,8 @@ struct othelloBoard{
     char board[8][8];
     enum othelloColour turn;
 };
+
+
 
 int main() {
 
@@ -67,11 +71,12 @@ int main() {
     current.board[3][4]=BLACK;
     current.board[4][4]=WHITE;
 
-    current.turn=BLACK;
+    current.turn=BLACK; /*Black goes first*/
 
     player1.score=2;
     player2.score=2;
 
+    /*Assigning pointers to values that need to be changed withing functions*/
     int inputRow;
     int inputCol;
     int *inputRowPtr;
@@ -84,32 +89,41 @@ int main() {
     p1ScorePtr = &player1.score;
     p2ScorePtr = &player2.score;
 
+    /*Game loop
+     * (Ends when every space is occupied (i.e. the total score = 64))*/
     while (player1.score+player2.score!=64){
 
+        /*Printing the current board and score*/
         printBoard(current.board, player1.name, player2.name, player1.score, player2.score, player1.colour);
 
-        printf("It is currently %c's turn\n", current.turn);
+        printf("\nIt is currently %c's turn\n", current.turn);
 
+        /*Taking user input
+         * If userInput returns 0 it means that there are no valid moves for the player this round.
+         * If this is the case then the flipPieces call can be skipped.*/
         if (userInput(current.turn, current.board, inputRowPtr, inputColPtr)){
 
+
+            /*Order of p1score and p2score as parameters for flipPieces depends on which player is White and which player is Black*/
             if(player1.colour == BLACK){
                 flipPieces(current.turn, current.board, inputRow, inputCol, p1ScorePtr, p2ScorePtr);
             }else flipPieces(current.turn, current.board, inputRow, inputCol, p2ScorePtr, p1ScorePtr);
         }
 
+        /*Switching who's turn it is for the next iteration of the loop*/
         if (current.turn==BLACK){
             current.turn=WHITE;
         } else current.turn=BLACK;
     }
 
     if(player1.score>player2.score){
-        printf("%s wins!!!!!!", player1.name);
+        printf("%s WINS!!!!!!", player1.name);
     }
     else if(player1.score<player2.score){
-        printf("%s wins!!!!!!", player2.name);
+        printf("%s WINS!!!!!!", player2.name);
     }else printf("DRAW");
 
-    printf("\nThanks for playing\n");
+    printf("\nThanks for playing!!!!!!\n");
 
     return 0;
 }

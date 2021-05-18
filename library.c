@@ -5,8 +5,12 @@
 #include "library.h"
 #include <stdio.h>
 
-int cases[8] = {0};
-int caseCounter;
+
+
+int cases[8] = {0}; /*Records the types of conditions met by a player's move (used in flipPieces)*/
+int caseCounter; /*Records number of types of conditions met by player's move (used in flipPieces)*/
+
+
 
 void printBoard(char board[][8], char p1name[50], char p2name[50], int p1score, int p2score, char p1colour){
 
@@ -33,51 +37,64 @@ void printBoard(char board[][8], char p1name[50], char p2name[50], int p1score, 
     printf("      a   b   c   d   e   f   g   h \n");
 }
 
+
+
+
+
 int userInput(char turn, char board[8][8], int *row, int *column){
 
     int row_input=0;
     char col_input='0';
 
+    /*Checking to see if there are any possible moves this turn*/
     if(!playerPass(turn, board)){
-        printf("%s", "There are no valid movers this turn. The player must pass");
+        printf("%s\n", "There are no valid movers this turn. The player must pass");
         return 0;
     }
 
-    printf("%s", "Please enter the row number of the disc you want to place.");
+    /*User inputs row number (repeats until valid number is entered)*/
+    printf("\n%s\n", "Please enter the row number of the disc you want to place.");
     while(!(row_input >= 1 && row_input<= 8)){
-        printf("%s", "\nThe row numbers are 1, 2, 3, 4, 5, 6, 7 and 8:");
+        printf("%s", "The row numbers are 1, 2, 3, 4, 5, 6, 7 and 8:");
         scanf("%d", &row_input);
         int tmp;
         while ((tmp = getchar()) != '\n' && tmp != EOF){}
     }
 
-    printf("%s", "Please enter the column letter of the disc you want to place.");
+    /*User inputs column letter (repeats until valid letter is entered)*/
+    printf("\n%s\n", "Please enter the column letter of the disc you want to place.");
     while(!(col_input >= 'a' && col_input<= 'h') && !(col_input >= 'A' && col_input <= 'H')){
-        printf("%s", "\nThe column letters are a, b, c, d, e, f, g and h:");
+        printf("%s", "The column letters are a, b, c, d, e, f, g and h:");
         scanf("%c", &col_input);
         int tmp;
         while ((tmp = getchar()) != '\n' && tmp != EOF){}
     }
 
+    /*Converting user inputs into proper 2D array index notation*/
     int row_tmp = row_input-1;
     int col_tmp = col_input-'a';
 
+    /*If the space entered is not empty (userInput called again so player can retry)*/
     if (board[row_tmp][col_tmp] != ' '){
         printf("Not a valid move! %d%c is already occupied\n", row_input, col_input);
-        userInput(turn, board, row, column);
+        return userInput(turn, board, row, column);
     }
+    /*If the space entered is a valid move*/
     else if (validMove(turn, board, row_tmp, col_tmp)){
         *row=row_tmp;
         *column=col_tmp;
         return 1;
     }
+    /*If the space entered is not a valid move (userInput called again so player can retry)*/
     else{
         printf("Not a valid move!\n");
-        userInput(turn, board, row, column);
+        return userInput(turn, board, row, column);
     }
-
-    return 0;
 }
+
+
+
+
 
 int playerPass(char turn, char board[8][8]){
 
@@ -92,6 +109,10 @@ int playerPass(char turn, char board[8][8]){
     return 0;
 }
 
+
+
+
+
 int validMove(char turn, char board[8][8], int row, int column) {
 
     char opponent;
@@ -99,22 +120,49 @@ int validMove(char turn, char board[8][8], int row, int column) {
         opponent = 'W';
     } else opponent = 'B';
 
+    /*initialising cases[] and caseCounter*/
     for (int i = 0; i < caseCounter; i++) {
         cases[i]=0;
     }
     caseCounter = 0;
 
     /*'Left' means current player wants to place piece to the left of opponent's piece*/
+    /*Every time the move entered meets the conditions for a case, the number for that case is added to cases[]
+     * This is to help streamline the process in flipPieces so that the function already knows which directions to flip the pieces without having to test for every case again unnecessarily
+     * Example:
+     *
+     *  --- --- --- --- --- --- --- ---
+    1  |   |   |   |   |   |   |   |   |
+        --- --- --- --- --- --- --- ---
+    2  |   |   |   |   |   |   |   |   |
+        --- --- --- --- --- --- --- ---
+    3  |   |   |   |   |   |   |   |   |
+        --- --- --- --- --- --- --- ---
+    4  |   |   | B | B | B |   |   |   |
+        --- --- --- --- --- --- --- ---
+    5  |   |   | W | W | W |   |   |   |
+        --- --- --- --- --- --- --- ---
+    6  |   |   |   |   |   |   |   |   |
+        --- --- --- --- --- --- --- ---
+    7  |   |   |   |   |   |   |   |   |
+        --- --- --- --- --- --- --- ---
+    8  |   |   |   |   |   |   |   |   |
+        --- --- --- --- --- --- --- ---
+         a   b   c   d   e   f   g   h
+
+         If black was to place their piece at 6c they would be below 5c (Case 4: Down) and below and to the left of 5d(Case 8: Left-Down Horizontal)
+         Then cases = {4, 8,...} and caseCounter = 2*/
 
     /*Case 1: Left*/
     if (board[row][column + 1] == opponent) {
         for (size_t i = 2; (column + i) < 8; i++) {
             if (board[row][column + i] == turn) {
-
                 cases[caseCounter] = 1;
                 caseCounter++;
                 break;
             }
+            /*Each case tests if a space in the line is unoccupied
+             * There must be an unbroken line of opponent's pieces between the new piece and the player's other piece for the move to be valid*/
             if (board[row][column + i] == ' ') {
                 break;
             }
@@ -226,27 +274,37 @@ int validMove(char turn, char board[8][8], int row, int column) {
         }
     }
 
+    /*If the move has met the conditions for 1 or more cases (i.e the move is valid)*/
     if(caseCounter>0){
         return 1;
     } else return 0;
 }
 
+
+
+
+
 void flipPieces(char turn, char board[8][8], int row, int column, int *blackScore, int *whiteScore) {
 
-    int i = 1;
-
+    /*Adding player's piece to the board and adding it to their score*/
     board[row][column] = turn;
+    if(turn=='B'){
+        *blackScore += 1;
+    }
+    else *whiteScore += 1;
 
-    int j;
+    /*This loop goes through cases[] and applies each case to the corresponding action*/
+    for (size_t j = 0; j < caseCounter; j++) {
 
-    for (j = 0; j <= caseCounter; j++) {
+        /*i counts how many pieces have been flipped + 1
+         * This value is then added/taken away from each player's points after each case*/
+        int i = 1;
 
         switch (cases[j]) {
 
             case 1: /*Left*/
 
                 /*Flipping opponent's pieces to the right of the piece just played*/
-                printf("\nleft");
                 while (board[row][column + i] != turn) {
                     board[row][column + i] = turn;
                     i++;
@@ -256,7 +314,6 @@ void flipPieces(char turn, char board[8][8], int row, int column, int *blackScor
             case 2: /*Right*/
 
                 /*Flipping opponent's pieces to the left of the piece just played*/
-                printf("\nright");
                 while (board[row][column - i] != turn) {
                     board[row][column - i] = turn;
                     i++;
@@ -266,7 +323,6 @@ void flipPieces(char turn, char board[8][8], int row, int column, int *blackScor
             case 3: /*Up*/
 
                 /*Flipping opponent's pieces below the piece just played*/
-                printf("\nup");
                 while (board[row + i][column] != turn) {
                     board[row + i][column] = turn;
                     i++;
@@ -276,7 +332,6 @@ void flipPieces(char turn, char board[8][8], int row, int column, int *blackScor
             case 4: /*Down*/
 
                 /*Flipping opponent's pieces above the piece just played*/
-                printf("\ndown");
                 while (board[row - i][column] != turn) {
                     board[row - i][column] = turn;
                     i++;
@@ -286,7 +341,6 @@ void flipPieces(char turn, char board[8][8], int row, int column, int *blackScor
             case 5: /*Right-Up Horizontal*/
 
                 /*Flipping opponent's pieces in a left-downward direction to the piece just played*/
-                printf("\nright-up");
                 while(board[row + i][column - i] != turn){
                     board[row + i][column - i] = turn;
                     i++;
@@ -296,7 +350,6 @@ void flipPieces(char turn, char board[8][8], int row, int column, int *blackScor
             case 6: /*Left-Up Horizontal*/
 
                 /*Flipping opponent's pieces in a right-downward direction to the piece just played*/
-                printf("\nleft-up");
                 while(board[row + i][column + i] != turn){
                     board[row + i][column + i] = turn;
                     i++;
@@ -306,7 +359,6 @@ void flipPieces(char turn, char board[8][8], int row, int column, int *blackScor
             case 7: /*Right-Down Horizontal*/
 
                 /*Flipping opponent's pieces in a left-upward direction to the piece just played*/
-                printf("\nright-down");
                 while(board[row - i][column - i] != turn){
                     board[row - i][column - i] = turn;
                     i++;
@@ -316,23 +368,20 @@ void flipPieces(char turn, char board[8][8], int row, int column, int *blackScor
             case 8: /*Left-Down Horizontal*/
 
                 /*Flipping opponent's pieces in a right-upward direction to the piece just played*/
-                printf("\nleft-down");
                 while(board[row - i][column + i] != turn){
                     board[row - i][column + i] = turn;
                     i++;
                 }
                 break;
         }
-    }
 
-    printf("\n%d iterations", j);
-
-    if(turn=='B'){
-        *blackScore += i;
-        *whiteScore -= (i-1);
-    }
-    else{
-        *blackScore -= (i-1);
-        *whiteScore += i;
+        if(turn=='B'){
+            *blackScore += (i-1);
+            *whiteScore -= (i-1);
+        }
+        else{
+            *blackScore -= (i-1);
+            *whiteScore += (i-1);
+        }
     }
 }

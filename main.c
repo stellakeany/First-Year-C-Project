@@ -73,27 +73,43 @@ int main() {
     player2.score=2;
 
     int inputRow;
-    char inputCol;
-    int  *inputRowPtr;
-    char  *inputColPtr;
+    int inputCol;
+    int *inputRowPtr;
+    int *inputColPtr;
+    int *p1ScorePtr;
+    int *p2ScorePtr;
 
-    inputRowPtr=&inputRow;
-    inputColPtr=&inputCol;
+    inputRowPtr = &inputRow;
+    inputColPtr = &inputCol;
+    p1ScorePtr = &player1.score;
+    p2ScorePtr = &player2.score;
 
-    int test=0;
-
-    while (player1.score+player2.score!=64 && test == 0){
+    while (player1.score+player2.score!=64){
 
         printBoard(current.board, player1.name, player2.name, player1.score, player2.score, player1.colour);
 
-        userInput(current.turn, current.board, inputRowPtr, inputColPtr);
+        printf("It is currently %c's turn\n", current.turn);
+
+        if (userInput(current.turn, current.board, inputRowPtr, inputColPtr)){
+
+            if(player1.colour == BLACK){
+                flipPieces(current.turn, current.board, inputRow, inputCol, p1ScorePtr, p2ScorePtr);
+            }else flipPieces(current.turn, current.board, inputRow, inputCol, p2ScorePtr, p1ScorePtr);
+        }
 
         if (current.turn==BLACK){
             current.turn=WHITE;
         } else current.turn=BLACK;
-
-        test++;
     }
+
+    if(player1.score>player2.score){
+        printf("%s wins!!!!!!", player1.name);
+    }
+    else if(player1.score<player2.score){
+        printf("%s wins!!!!!!", player2.name);
+    }else printf("DRAW");
+
+    printf("\nThanks for playing\n");
 
     return 0;
 }

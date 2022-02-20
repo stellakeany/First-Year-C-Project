@@ -1,4 +1,4 @@
-# COMP10050_Assignment_2
+# OTHELLO
  Program that manages a game of Othello for two players.
 
 ----------MAIN.C----------
